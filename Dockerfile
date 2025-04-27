@@ -1,11 +1,21 @@
-FROM python:3.9.7-slim-buster
+# Python 3.12 का बेस इमेज (3.9.7 पुराना है)
+FROM python:3.12-slim
 
+# सिस्टम डिपेंडेंसीज (FFmpeg + Aria2)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    aria2 \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR .
-RUN apt -qq update && apt -qq install -y git wget pv jq python3-dev ffmpeg mediainfo
+# वर्किंग डायरेक्टरी सेट करें
+WORKDIR /app
+
+# सभी फाइल्स कॉपी करें
 COPY . .
-RUN pip3 install -r requirements.txt
-RUN apk add --no-cache gcc libffi-dev musl-dev ffmpeg aria2 && pip install --no-cache-dir -r requirements.txt
-RUN apt install ffmpeg
 
+# Python डिपेंडेंसीज इंस्टॉल करें (एक बार ही काफी)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# बॉट लॉन्च करें
 CMD ["python3", "main.py"]
